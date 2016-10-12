@@ -146,15 +146,19 @@ import arcpy
 
 arcpy.env.overwriteOutput = True
 
+#Set the workspace
+arcpy.env.workspace = r"C:\Users\maalbino\Documents\GIS\mapbooks\mapbook.gdb"
+arcpy.env.scratchWorkspace = r"C:\Users\maalbino\Documents\GIS\mapbooks\mapbook.gdb"
+mapLocation = r"C:\Users\maalbino\Documents\GIS\mapbooks\mapstest"
 
 #define the template .mxd
 #which mxd is your template?
-mapdoc = r"C:\mapbooks\layout_template.mxd"
+mapdoc = r"C:\Users\maalbino\Documents\GIS\TW_trends\example4.mxd"
 template = arcpy.mapping.MapDocument(mapdoc)
 
 #define the dataframes
-df1974 = arcpy.mapping.ListDataFrames(template, "1974")[0]
-df2008 = arcpy.mapping.ListDataFrames(template, "2008")[0]
+dfBefore = arcpy.mapping.ListDataFrames(template, "1974")[0]
+dfAfter = arcpy.mapping.ListDataFrames(template, "2008")[0]
 
 #define category text elements
 category = arcpy.mapping.ListLayoutElements(template,"TEXT_ELEMENT", "CategoryText")[0]
@@ -215,10 +219,7 @@ setToZero()
 
 
 
-#Set the workspace
-arcpy.env.workspace = r"C:\Users\maalbino\Documents\GIS\TW_trends\twtrends.gdb"
-arcpy.env.scratchWorkspace = r"C:\Users\maalbino\Documents\GIS\TW_trends\twtrends.gdb"
-mapLocation = r"C:\Users\maalbino\Documents\GIS\TW_trends\maps2"
+
 
 #make tidal wetlands feature layers for 1974 and 2005/2008
 try:
@@ -249,15 +250,15 @@ for row in rows:
     query = " FACILITY = '" + mapName + "'" 
       
     #define layer and create definition query
-    decLands74 = arcpy.mapping.ListLayers(template, "DEC_tidalwetlands", df1974)[0]
+    decLands74 = arcpy.mapping.ListLayers(template, "DEC_tidalwetlands", dfBefore)[0]
     decLands74.definitionQuery = query
     
     #pan to the extent of the stations layer
-    df1974.extent = decLands74.getSelectedExtent()
+    dfBefore.extent = decLands74.getSelectedExtent()
     
     #match dataframes
-    df2008.extent = df1974.extent
-    decLands0508 = arcpy.mapping.ListLayers(template, "DEC_tidalwetlands", df2008)[0]
+    dfAfter.extent = dfBefore.extent
+    decLands0508 = arcpy.mapping.ListLayers(template, "DEC_tidalwetlands", dfAfter)[0]
     decLands0508.definitionQuery = query
     
     #make feature layer of DEC wetlands
@@ -266,10 +267,10 @@ for row in rows:
     
     #Summarize 2005/2008 wetlands
     wetlands2008Table = summaryTable("selectedWetlands2008", "selectedDECtidalwetlands2008", "Acreage", "TWL_Class", "2008")
-    arcpy.mapping.AddTableView(df2008, wetlands2008Table)
+    arcpy.mapping.AddTableView(dfAfter, wetlands2008Table)
 
     wetlands1974Table = summaryTable("selectedWetlands1974", "selectedDECtidalwetlands1974", "Acreage", "TWCAT74", "1974")
-    arcpy.mapping.AddTableView(df1974, wetlands1974Table) 
+    arcpy.mapping.AddTableView(dfBefore, wetlands1974Table) 
         
     #print "1974 Table"
     table1974 = arcpy.da.SearchCursor(wetlands1974Table,["TWCAT74","SUM_Acreage"])
@@ -313,8 +314,8 @@ for row in rows:
     newMap = mapLocation + "\\" + mapName + ".mxd"
     template.saveACopy(newMap)
     #remove the summary table so it doesn't appear in subsequent map documents
-    arcpy.mapping.RemoveTableView(df1974, wetlands1974Table)
-    arcpy.mapping.RemoveTableView(df2008, wetlands2008Table)
+    arcpy.mapping.RemoveTableView(dfBefore, wetlands1974Table)
+    arcpy.mapping.RemoveTableView(dfAfter, wetlands2008Table)
     setToZero()
 
 
