@@ -40,38 +40,49 @@ def summaryTable(selectedWetlands, selectedDECtidalwetlands, sumField, caseField
 
 #lines up the columns
 def centerColumns():
-    textDict['tblfm1974'].elementPositionX = xPosMiddleCol
-    textDict['tblhm1974'].elementPositionX = xPosMiddleCol
-    textDict['tblim1974'].elementPositionX = xPosMiddleCol
-    textDict['tblpanne1974'].elementPositionX = xPosMiddleCol
-    textDict['tblphrag1974'].elementPositionX = xPosMiddleCol
-    textDict['tblunv1974'].elementPositionX = xPosMiddleCol
-    textDict['tblup1974'].elementPositionX = xPosMiddleCol
+    col1974 = {key:value for key, value in textDict.items() if '1974' in key}
+    for key in col1974:
+        col1974[key].elementPositionX = xPosMiddleCol
     
-    textDict['tblfm2008'].elementPositionX = xPosRightCol
-    textDict['tblhm2008'].elementPositionX = xPosRightCol
-    textDict['tblim2008'].elementPositionX = xPosRightCol
-    textDict['tblpanne2008'].elementPositionX = xPosRightCol
-    textDict['tblphrag2008'].elementPositionX = xPosRightCol
-    textDict['tblunv2008'].elementPositionX = xPosRightCol
-    textDict['tblup2008'].elementPositionX = xPosRightCol
-    
-    textDict['tblfm_Acres'].elementPositionX = xPosDiffAcres
-    textDict['tblhm_Acres'].elementPositionX = xPosDiffAcres
-    textDict['tblim_Acres'].elementPositionX = xPosDiffAcres
-    textDict['tblpanne_Acres'].elementPositionX = xPosDiffAcres
-    textDict['tblphrag_Acres'].elementPositionX = xPosDiffAcres
-    textDict['tblunv_Acres'].elementPositionX = xPosDiffAcres
-    textDict['tblup_Acres'].elementPositionX = xPosDiffAcres
-    
-    textDict['tblfm_Per'].elementPositionX = xPosDiffPerc
-    textDict['tblhm_Per'].elementPositionX = xPosDiffPerc
-    textDict['tblim_Per'].elementPositionX = xPosDiffPerc
-    textDict['tblpanne_Per'].elementPositionX = xPosDiffPerc
-    textDict['tblphrag_Per'].elementPositionX = xPosDiffPerc
-    textDict['tblunv_Per'].elementPositionX = xPosDiffPerc
-    textDict['tblup_Per'].elementPositionX = xPosDiffPerc
-    
+    col2008 = {key:value for key, value in textDict.items() if '2008' in key}
+    for key in col2008:
+        col2008[key].elementPositionX = xPosRightCol
+               
+    colDiff = {key:value for key, value in textDict.items() if 'Acres' in key}
+    for key in colDiff:
+        colDiff[key].elemenyPositionX = xPosDiffAcres
+
+    colPer = {key:value for key, value in textDict.items() if '_Per' in key}
+    for key in colPer:
+        colPer[key].elementPositionX = xPosDiffPerc
+
+def lineUpRows():
+    for key in colsDict:
+        colsDict[key].elementPositionY = yPosHeader
+
+    fm = {key:value for key, value in textDict.items() if 'fm' in key}
+    for key in fm:
+        fm[key].elementPositionY = yPosFM
+    hm = {key:value for key, value in textDict.items() if 'hm' in key}
+    for key in hm:
+        hm[key].elementPositionY = yPosHM
+    im = {key:value for key, value in textDict.items() if 'im' in key}
+    for key in im:
+        im[key].elementPositionY = yPosIM
+    panne = {key:value for key, value in textDict.items() if 'panne' in key}
+    for key in panne:
+        panne[key].elementPositionY = yPosPanne
+    phrag = {key:value for key, value in textDict.items() if 'phrag' in key}
+    for key in phrag:
+        phrag[key].elementPositionY = yPosPhrag
+    unv = {key:value for key, value in textDict.items() if 'unv' in key}
+    for key in unv:
+        unv[key].elementPositionY = yPosUnv
+    up = {key:value for key, value in textDict.items() if 'up' in key}
+    for key in up:
+        up[key].elementPositionY = yPosUp
+
+          
 def setToZero():
     #set everything to 0
     for key in textDict:
@@ -84,42 +95,31 @@ def setToZero():
             textDict[key].text = "NA"
         else:
             textDict[key].text = 0
+    centerColumns()
+    lineUpRows()
+
     
 
     
 def calculateDifference():
-    fmAcres = textDict['tblfm_Acres']
-    fm2008 =textDict['tblfm2008']
-    hmAcres=textDict['tblhm_Acres']
-    hm2008 = textDict['tblhm2008']
-    hm1974 = textDict['tblhm1974']
-    imAcres = textDict['tblim_Acres']
-    im2008 = textDict['tblim2008']
-    im1974 = textDict['tblim1974']
-    phragAcres = textDict['tblphrag_Acres']
-    phrag2008 = textDict['tblphrag2008']
-    phrag1974 = textDict['tblphrag1974']
-    fmPerc = textDict['tblfm_Per']
-    hmPerc = textDict['tblhm_Per']
-    imPerc = textDict['tblim_Per']
-    phragPerc = textDict['tblphrag_Per']
-    fmAcres.text = str(float(fm2008.text) - float(textDict['tblfm1974'].text))
-    hmAcres.text = str(float(hm2008.text) - float(hm1974.text))
-    imAcres.text = str(float(im2008.text) - float(im1974.text))
-    phragAcres.text = str(float(phrag2008.text) - float(phrag1974.text))
+    
+    textDict['tblfm_Acres'].text = str(float(textDict['tblfm2008'].text) - float(textDict['tblfm1974'].text))
+    textDict['tblhm_Acres'].text = str(float(textDict['tblhm2008'].text) - float(textDict['tblhm1974'].text))
+    textDict['tblim_Acres'].text = str(float(textDict['tblim2008'].text) - float(textDict['tblim1974'].text))
+    textDict['tblphrag_Acres'].text = str(float(textDict['tblphrag2008'].text) - float(textDict['tblphrag1974'].text))
     
     if float(textDict['tblfm1974'].text)>0:
-        percent1 = (float(fmAcres.text)/float(textDict['tblfm1974'].text))*100
-        fmPerc.text = str("%.2f" % percent1)
-    if float(hm1974.text)>0:
-        percent2 = (float(hmAcres.text)/float(hm1974.text))
-        hmPerc.text = str("%.2f" % percent2)
-    if float(im1974.text)>0:
-        percent3 = (float(imAcres.text)/float(im1974.text))*100
-        imPerc.text = str("%.2f" % percent3)
-    if float(phrag1974.text)>0:
-        percent4 = (float(phragAcres.text)/float(phrag1974.text))*100
-        phragPerc.text = str("%.2f" % percent4)
+        percent1 = (float(textDict['tblfm_Acres'].text)/float(textDict['tblfm1974'].text))*100
+        textDict['tblfm_Per'].text = str("%.2f" % percent1)
+    if float(textDict['tblhm1974'].text)>0:
+        percent2 = (float(textDict['tblhm_Acres'].text)/float(textDict['tblhm1974'].text))
+        textDict['tblhm_Per'].text = str("%.2f" % percent2)
+    if float(textDict['tblim1974'].text)>0:
+        percent3 = (float(textDict['tblim_Acres'].text)/float(textDict['tblim1974'].text))*100
+        textDict['tblim_Per'].text = str("%.2f" % percent3)
+    if float(textDict['tblphrag1974'].text)>0:
+        percent4 = (float(textDict['tblphrag_Acres'].text)/float(textDict['tblphrag1974'].text))*100
+        textDict['tblphrag_Per'].text = str("%.2f" % percent4)
     
 
 #%%
@@ -128,13 +128,13 @@ import arcpy
 arcpy.env.overwriteOutput = True
 
 #Set the workspace
-arcpy.env.workspace = r"C:\Users\maalbino\Documents\GIS\mapbooks\mapbook.gdb"
-arcpy.env.scratchWorkspace = r"C:\Users\maalbino\Documents\GIS\mapbooks\mapbook.gdb"
-mapLocation = r"C:\Users\maalbino\Documents\GIS\mapbooks\mapstest"
+arcpy.env.workspace = r"\\gis-serv\workspace\private\mapbooks\mapbook.gdb"
+arcpy.env.scratchWorkspace = r"\\gis-serv\workspace\private\mapbooks\mapbook.gdb"
+mapLocation = r"\\gis-serv\workspace\private\mapbooks\mapstest"
 
 #define the template .mxd
 #which mxd is your template?
-mapdoc = r"C:\Users\maalbino\Documents\GIS\mapbooks\layout_template.mxd"
+mapdoc = r"\\gis-serv\workspace\private\mapbooks\layout_template_test.mxd"
 template = arcpy.mapping.MapDocument(mapdoc)
 
 #define the dataframes
@@ -149,7 +149,7 @@ colsDict = {col.name:col for col in cols}
 
 #define the rows
 records = arcpy.mapping.ListLayoutElements(template,"TEXT_ELEMENT","*Row")
-rowsDict = {record.name:record for record in records}
+recordsDict = {record.name:record for record in records}
 
 #define all text elements in the table
 textBoxes = arcpy.mapping.ListLayoutElements(template,"TEXT_ELEMENT","tbl*")
@@ -162,6 +162,15 @@ xPosMiddleCol = colsDict['acreage1974Col'].elementPositionX
 xPosRightCol = colsDict['acreage2008Col'].elementPositionX
 xPosDiffAcres = colsDict['DiffAcresCol'].elementPositionX
 xPosDiffPerc = colsDict['DiffPercentCol'].elementPositionX
+
+yPosHeader = colsDict['CategoryCol'].elementPositionY
+yPosFM = recordsDict['fmRow'].elementPositionY
+yPosHM = recordsDict['hmRow'].elementPositionY
+yPosIM = recordsDict['imRow'].elementPositionY
+yPosPanne = recordsDict['panneRow'].elementPositionY
+yPosPhrag = recordsDict['phragRow'].elementPositionY
+yPosUnv = recordsDict['unvRow'].elementPositionY
+yPosUp = recordsDict['upRow'].elementPositionY
 
 #%%
 setToZero()
@@ -180,7 +189,7 @@ except:
     print arcpy.GetMessages()
 
 #Cycle through the DEC lands, make a new map for each property
-rows = arcpy.SearchCursor(r"data\DEC_tidalwetlands", "", "", "", "")
+rows = arcpy.SearchCursor(r"data\DEC_tidalwetlands_test", "", "", "", "")
 for row in rows:
     mapName = row.getValue("FACILITY")
     objectID = row.getValue("OBJECTID")
