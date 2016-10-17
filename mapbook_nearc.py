@@ -28,6 +28,7 @@ def updateHeader(template, mapName, townName, embaymentName):
     else: pass
     
 def summaryTable(selectedWetlands, selectedDECtidalwetlands, sumField, caseField, strYear):
+    #calculate the tw acreage by category within DEC properties
     #select only tw in the designated property
     arcpy.SelectLayerByLocation_management(selectedWetlands, "INTERSECT", selectedDECtidalwetlands)
     #remove spaces from map name
@@ -37,53 +38,8 @@ def summaryTable(selectedWetlands, selectedDECtidalwetlands, sumField, caseField
     wetlandsTable = arcpy.mapping.TableView(outputTable)
     return wetlandsTable
     
-
-#lines up the columns
-def centerColumns():
-    col1974 = {key:value for key, value in textDict.items() if '1974' in key}
-    for key in col1974:
-        col1974[key].elementPositionX = xPosMiddleCol
-    
-    col2008 = {key:value for key, value in textDict.items() if '2008' in key}
-    for key in col2008:
-        col2008[key].elementPositionX = xPosRightCol
-               
-    colDiff = {key:value for key, value in textDict.items() if 'Acres' in key}
-    for key in colDiff:
-        colDiff[key].elemenyPositionX = xPosDiffAcres
-
-    colPer = {key:value for key, value in textDict.items() if '_Per' in key}
-    for key in colPer:
-        colPer[key].elementPositionX = xPosDiffPerc
-
-def lineUpRows():
-    for key in colsDict:
-        colsDict[key].elementPositionY = yPosHeader
-
-    fm = {key:value for key, value in textDict.items() if 'fm' in key}
-    for key in fm:
-        fm[key].elementPositionY = yPosFM
-    hm = {key:value for key, value in textDict.items() if 'hm' in key}
-    for key in hm:
-        hm[key].elementPositionY = yPosHM
-    im = {key:value for key, value in textDict.items() if 'im' in key}
-    for key in im:
-        im[key].elementPositionY = yPosIM
-    panne = {key:value for key, value in textDict.items() if 'panne' in key}
-    for key in panne:
-        panne[key].elementPositionY = yPosPanne
-    phrag = {key:value for key, value in textDict.items() if 'phrag' in key}
-    for key in phrag:
-        phrag[key].elementPositionY = yPosPhrag
-    unv = {key:value for key, value in textDict.items() if 'unv' in key}
-    for key in unv:
-        unv[key].elementPositionY = yPosUnv
-    up = {key:value for key, value in textDict.items() if 'up' in key}
-    for key in up:
-        up[key].elementPositionY = yPosUp
-
           
-def setToZero():
+def setToZero(textDict):
     #set everything to 0
     for key in textDict:
         if key == 'tblpanne1974' or key == 'tblunv1974' or key == 'tblup1974':
@@ -95,10 +51,19 @@ def setToZero():
             textDict[key].text = "NA"
         else:
             textDict[key].text = 0
-    centerColumns()
-    lineUpRows()
 
-    
+def centerColumns(align,textDict): 
+    #define the center of each column
+    for key,column in align.iteritems():
+        toAlign = {fieldName:value for fieldName, value in textDict.items() if key in fieldName}
+        for field, header in toAlign.iteritems():
+            toAlign[field].elementPositionX = column      
+
+def  centerRows(align,textDict):
+    for key, column in align.iteritems():
+        toAlign = {fieldName:value for fieldName, value in textDict.items() if key in fieldName}
+        for field, header in toAlign.iteritems():
+            toAlign[field].elementPositionY = column
 
     
 def calculateDifference():
@@ -143,7 +108,7 @@ dfAfter = arcpy.mapping.ListDataFrames(template, "2008")[0]
 
 
 #%%
-#define the columns
+#define  the columns
 cols = arcpy.mapping.ListLayoutElements(template,"TEXT_ELEMENT","*Col")
 colsDict = {col.name:col for col in cols}
 
@@ -156,24 +121,13 @@ textBoxes = arcpy.mapping.ListLayoutElements(template,"TEXT_ELEMENT","tbl*")
 textDict ={x.name:x for x in textBoxes}
 
 #%%
-#define the center of each column
-xPosLeftCol = colsDict['CategoryCol'].elementPositionX
-xPosMiddleCol = colsDict['acreage1974Col'].elementPositionX
-xPosRightCol = colsDict['acreage2008Col'].elementPositionX
-xPosDiffAcres = colsDict['DiffAcresCol'].elementPositionX
-xPosDiffPerc = colsDict['DiffPercentCol'].elementPositionX
-
-yPosHeader = colsDict['CategoryCol'].elementPositionY
-yPosFM = recordsDict['fmRow'].elementPositionY
-yPosHM = recordsDict['hmRow'].elementPositionY
-yPosIM = recordsDict['imRow'].elementPositionY
-yPosPanne = recordsDict['panneRow'].elementPositionY
-yPosPhrag = recordsDict['phragRow'].elementPositionY
-yPosUnv = recordsDict['unvRow'].elementPositionY
-yPosUp = recordsDict['upRow'].elementPositionY
-
+#set up dictionary that uses a key that can be found in text elements inside the table and the element position fo the column header.
+alignCols = {'1974': colsDict['acreage1974Col'].elementPositionX, '2008':colsDict['acreage2008Col'].elementPositionX, 'Acres':colsDict['DiffAcresCol'].elementPositionX,  '_Per':colsDict['DiffPercentCol'].elementPositionX}
+        
+alignRows = {'fm':recordsDict['fmRow'].elementPositionY, 'hm':recordsDict['hmRow'].elementPositionY, 'im':recordsDict['imRow'].elementPositionY, 'panne':recordsDict['panneRow'], 'phrag':recordsDict['phragRow'].elementPositionY, 'unv':recordsDict['unvRow'].elementPositionY, 'up':recordsDict['upRow'].elementPositionY}
+    
 #%%
-setToZero()
+setToZero(textDict)
 
 #%%
 #make tidal wetlands feature layers for 1974 and 2005/2008
@@ -263,15 +217,16 @@ for row in rows:
     
     
     calculateDifference()
-    
-    centerColumns()
+    centerColumns(alignCols, textDict)
+    centerRows(alignRows, textDict)
+#    centerColumns()
     #make a copy of the template and name it after the facility name 
     newMap = mapLocation + "\\" + mapName + ".mxd"
     template.saveACopy(newMap)
     #remove the summary table so it doesn't appear in subsequent map documents
     arcpy.mapping.RemoveTableView(dfBefore, wetlands1974Table)
     arcpy.mapping.RemoveTableView(dfAfter, wetlands2008Table)
-    setToZero()
+    setToZero(textDict)
 
 
 del row, rows, template
