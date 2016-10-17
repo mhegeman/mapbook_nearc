@@ -42,12 +42,9 @@ def summaryTable(selectedWetlands, selectedDECtidalwetlands, sumField, caseField
 def setToZero(textDict):
     #set everything to 0
     for key in textDict:
-        if key == 'tblpanne1974' or key == 'tblunv1974' or key == 'tblup1974':
+        if key in ['tblpanne1974','tblunv1974','tblup1974']:
             textDict[key].text = "not measured"
-    
-        elif key == 'tblpanne_Acres' or key == 'tblun_Acres' or key == 'tblup_Acres':
-            textDict[key].text = "NA"
-        elif key == 'tblpanne_Per' or key == 'tblun_Per' or key == 'tblup_Per':
+        elif key in ['tblpanne_Acres','tblun_Acres','tblup_Acres','tblpanne_Per','tblun_Per','tblup_Per']:    
             textDict[key].text = "NA"
         else:
             textDict[key].text = 0
